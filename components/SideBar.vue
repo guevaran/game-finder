@@ -12,8 +12,11 @@ watch(() => props.show, (newValue, oldValue) => {
     console.log('Change show :', oldValue, '->', newValue)
     if (newValue == true) {
         console.log('sideBar.value before focus', sideBar.value)
-        // NO ERROR BUT NOT WORKING :(
-        sideBar.value.focus()
+
+        nextTick(() => {
+            sideBar.value.focus()
+        })
+
     }
 })
 
