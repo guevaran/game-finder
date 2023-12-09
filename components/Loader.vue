@@ -7,7 +7,7 @@
     width: 48px;
     height: 48px;
     border: 5px solid theme('colors.text');
-    border-bottom-color: theme('colors.primary');
+    border-bottom-color: theme('colors.primary.DEFAULT');
     border-radius: 50%;
     display: inline-block;
     box-sizing: border-box;

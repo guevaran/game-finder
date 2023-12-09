@@ -19,6 +19,7 @@ export default defineNuxtConfig({
     '@nuxtjs/google-fonts',
     '@nuxt/image',
     'nuxt-api-party',
+    '@nuxt/ui',
   ],
   googleFonts: {
     download: true,
