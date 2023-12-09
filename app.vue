@@ -175,8 +175,9 @@ onBeforeUnmount(() => {
           <div class="flex flex-col">
             <button type="button" class="font-bold px-4 py-2 bg-primary text-background-950" @click="nextGame()">Next
               Game</button>
-            <UDivider label="OR" class="my-2" />
-            <span>Press <span class="font-bold underline underline-offset-4 decoration-primary">SPACEBAR</span> to find a
+            <UDivider label="OR" class="my-2" v-if="windowWidth > 640" />
+            <span v-if="windowWidth > 640">Press <span
+                class="font-bold underline underline-offset-4 decoration-primary">SPACEBAR</span> to find a
               game to
               play!</span>
           </div>
