@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@nuxt/image": "^1.1.0",
-    "@nuxt/ui": "^2.11.0"
+    "@nuxt/ui": "^2.11.0",
+    "vue-slider-component": "^4.1.0-beta.7"
   }
 }

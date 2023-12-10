@@ -1,8 +1,19 @@
 <script setup lang="ts">
+// @ts-ignore
+import VueSlider from 'vue-slider-component/dist-css/vue-slider-component.umd.min.js'
+import 'vue-slider-component/dist-css/vue-slider-component.css'
+import 'vue-slider-component/theme/default.css'
 
-// TODO: Add filters
-// TODO: Get several games in one call to avoid loading and too many API requests (But should be requested again if filter change)
+interface Game {
+  name: string,
+  cover: {
+    image_id: string
+  },
+  url: string,
+  first_release_date: number,
+}
 
+// Get games data
 const { data: games, pending, error, refresh } = useLazyAsyncData('game', async () => {
 
   var platformFilter = ''
@@ -19,9 +30,9 @@ const { data: games, pending, error, refresh } = useLazyAsyncData('game', async 
 
   const random0toCount = Math.floor(Math.random() * (count.count - 9))
 
-  const games: { name: string, cover: { image_id: string } }[] = await $igdb('/games', {
+  const games: Game[] = await $igdb('/games', {
     method: 'POST',
-    body: `fields name,cover.image_id; where total_rating_count>5 & parent_game=null & cover!=null & name!=null 
+    body: `fields name,cover.image_id,url; where total_rating_count>5 & parent_game=null & cover!=null & name!=null 
     & total_rating>${filter.rate}
     ${platformFilter};
     limit 10; offset ${random0toCount};`.replaceAll('\n', '')
@@ -33,6 +44,8 @@ const { data: games, pending, error, refresh } = useLazyAsyncData('game', async 
   server: false,
 })
 
+// Get platforms data
+// TODO: Error handling
 const { data: platforms, error: errPlatforms } = useIgdbData('/platforms', {
   method: 'POST',
   body: "fields name,alternative_name,abbreviation; limit 500; sort name asc;"
@@ -46,20 +59,44 @@ const showSideBar = ref(false)
 // Filters
 interface Filter {
   rate: number,
-  platforms: { name: string, id: number, alternative_name: string, abbreviation: string }[]
+  platforms: { name: string, id: number, alternative_name: string, abbreviation: string }[],
+  // dateRange: [number,number],
+  startDate: Date,
+  endDate: Date,
 }
 const filter: Filter = reactive({
   rate: 60,
   platforms: [],
+  // dateRange: [0, Math.floor(new Date().getTime() / 1000)], // 01-01-1970 to now
+  startDate: new Date(1970, 1, 1),
+  endDate: new Date(),
 })
+const rangeDate = ref([1970, 2023])
 
+// [{ lbl: '1970', val: 1970 }, ..., { lbl: 'now', val: 2023 }]
+function calcDataRangeDate() {
+  const now = new Date()
+  var data = []
+  for (let i = 1970; i <= now.getFullYear(); i++) {
+    data.push({
+      lbl: (i == now.getFullYear()) ? 'now' : i,
+      val: i,
+    })
+  }
+  return data
+}
+const dataRangeDate = ref(calcDataRangeDate())
+// [1970, 1980, ..., 2010, 2020]
+const dataRangeMarks = ref(dataRangeDate.value.map((d) => d.val).filter((v) => v % 10 == 0))
+
+// To know if the filters has been changed
 const filterJustChanged = ref(false)
 watch(filter, (newValue, oldValue) => {
   console.log("filter just changed")
   filterJustChanged.value = true
 })
 
-// Current game
+// Get current game
 const game = computed(() => {
   var res
   if (games.value) {
@@ -67,14 +104,6 @@ const game = computed(() => {
   }
   return res
 })
-
-
-
-function isLgScreen() {
-  console.log("isLgScreen", windowWidth.value > 1024)
-  return windowWidth.value > 1024
-}
-
 
 
 // Go to next game by increment gameIndex (and refresh data if needed)
@@ -115,7 +144,7 @@ function resizeHandler() {
 onMounted(() => {
   console.log("app mounted")
   windowWidth.value = window.innerWidth
-  showSideBar.value = isLgScreen()
+  showSideBar.value = windowWidth.value > 1024 // If screen width is minimum "lg" (1024px)
   window.addEventListener("keyup", keyUpHandler)
   window.addEventListener('resize', resizeHandler)
 })
@@ -136,7 +165,9 @@ onBeforeUnmount(() => {
       <div class="grow">
         <!--HEADER-->
         <div class="w-full h-12 flex justify-between sticky top-0">
-          <div class="p-4">logo</div>
+          <div class="p-4">
+            <NuxtImg src="/imgs/logo.png" width="40" height="50" />
+          </div>
           <button v-if="!showSideBar" type="button" class="p-4 mr-2" @click="showSideBar = true">
             <Icon class="text-text" size="2em" name="fluent:filter-16-filled" />
           </button>
@@ -166,14 +197,15 @@ onBeforeUnmount(() => {
             </div>
 
             <!--IMAGE HOVER BOX-->
-            <button type="button" v-if="!pending && game"
+            <NuxtLink :to="game.url" target="_blank" v-if="!pending && game"
               class="absolute w-full h-full bg-background bg-opacity-70 top-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center gap-2">
               <span class="text-2xl">{{ game!.name }}</span>
               <span>Click to get more info!</span>
-            </button>
+            </NuxtLink>
           </div>
           <div class="flex flex-col">
-            <button type="button" class="font-bold px-4 py-2 bg-primary text-background-950" @click="nextGame()">Next
+            <button type="button" class="font-bold text-2xl px-4 py-2 bg-primary text-background-950"
+              @click="nextGame()">Next
               Game</button>
             <UDivider label="OR" class="my-2" v-if="windowWidth > 640" />
             <span v-if="windowWidth > 640">Press <span
@@ -186,7 +218,7 @@ onBeforeUnmount(() => {
 
       <SideBar :show="showSideBar" @close="showSideBar = false" :windowWidth="windowWidth">
         <!--@focusout="sideBarFocusout()" -->
-        <div class="text-xl p-4">Filters</div>
+        <div class="text-2xl p-4">Filters</div>
         <div class="p-4">
           <div class="flex justify-between"><span>Minimum rating:</span><span>{{ filter.rate + ' / 100' }}</span>
           </div>
@@ -202,8 +234,12 @@ onBeforeUnmount(() => {
             </template>
           </USelectMenu>
         </div>
-        <div class="p-4">test</div>
-        <div class="p-4">test</div>
+        <div class="p-4 flex flex-col">
+          <span>First release date between:</span>
+          <vue-slider v-model="rangeDate" :enable-cross="false" :data="dataRangeDate" :data-value="'val'"
+            :data-label="'lbl'" absorb :tooltip-placement="'top'" :marks="dataRangeMarks"></vue-slider>
+          <!--:tooltip="'always'"-->
+        </div>
       </SideBar>
     </SideBarContainer>
 

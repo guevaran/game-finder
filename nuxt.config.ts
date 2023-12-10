@@ -21,6 +21,7 @@ export default defineNuxtConfig({
     'nuxt-api-party',
     '@nuxt/ui',
   ],
+  // plugins: ['~/plugins/vue-slider.client.js'],
   googleFonts: {
     download: true,
     families: {
