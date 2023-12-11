@@ -24,9 +24,12 @@ watch(() => props.show, (newValue, oldValue) => {
     }
 })
 
-function handleFocusout() {
-    if (props.windowWidth < 1024) {
-        emit('close')
+function handleFocusout(event: any) {
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+        if (props.windowWidth < 1024) {
+            // console.log("emit close sidebar")
+            emit('close')
+        }
     }
 }
 
@@ -39,8 +42,9 @@ onMounted(() => {
 <template>
     <Transition name="tshrink">
         <div class="fixed right-0 top-0 h-screen w-2/3 lg:sticky lg:self-start lg:basis-1/4 bg-background p-4 shadow-lg shadow-background-800 z-10 border border-text border-opacity-50 outline-none"
-            v-show="show" tabindex="1" ref="sideBar" @focusout="handleFocusout()">
-            <div class="flex flex-col items-stretch overflow-y-auto h-full">
+            v-show="show" tabindex="1" ref="sideBar" @blur="handleFocusout">
+            <!--TODO: Fix blur issue mobile when clicking input inside sidebar-->
+            <div class="flex flex-col items-stretch overflow-y-auto overflow-x-clip h-full">
                 <slot></slot>
             </div>
             <button v-if="true" type="button"

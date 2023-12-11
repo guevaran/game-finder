@@ -20,6 +20,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     'nuxt-api-party',
     '@nuxt/ui',
+    'nuxt-scheduler',
   ],
   // plugins: ['~/plugins/vue-slider.client.js'],
   googleFonts: {
