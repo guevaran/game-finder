@@ -1,75 +1,58 @@
-# Nuxt 3 Minimal Starter
+# Game Finder
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+What to play? With Game Finder, discover your next video game to play!
+Game Finder is an open source web app that gives ideas of what video game to play.
 
-## Setup
+## Author
 
-Make sure to install the dependencies:
+[Nicolas Guevara](https://nicolas.guev.fr/)
+
+## Data source
+
+Game Finder uses data from [IGDB](https://www.igdb.com/).
+
+## Setup locally
+
+1. Clone the repo : `git clone https://github.com/guevaran/game-finder.git`
+   
+3. Follow account creation of [IGDB documentation](https://api-docs.igdb.com/#account-creation)
+   
+5. Create a file `.env` at project root with content :
+
+```plaintext
+IGDB_API_BASE_URL="https://api.igdb.com/v4"
+IGDB_TWITCH_AUTH_URL="https://id.twitch.tv/oauth2/token?client_id=<clientId>&client_secret=<clientSecret>&grant_type=client_credentials"
+IGDB_CLIENT_ID="<clientId>"
+IGDB_TOKEN="<accessToken>"
+```
+
+6. Install the dependencies:
 
 ```bash
 # npm
 npm install
-
 # pnpm
 pnpm install
-
 # yarn
 yarn install
-
 # bun
 bun install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+7. Start the development server on `http://localhost:3000`:
 
 ```bash
 # npm
 npm run dev
-
 # pnpm
 pnpm run dev
-
 # yarn
 yarn dev
-
 # bun
 bun run dev
 ```
 
-## Production
+## IGDB Token Refresh
 
-Build the application for production:
+FYI the server/autoRefreshToken.ts script runs on weekly basis while the server is running in order to refresh the access token of IGDB that has an expiration date.
 
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
