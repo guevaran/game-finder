@@ -1,5 +1,8 @@
 <template>
     <div class="flex w-full">
-        <slot></slot>
+        <div class="grow">
+            <slot name="content"></slot>
+        </div>
+        <slot name="sidebar-content"></slot>
     </div>
 </template>
