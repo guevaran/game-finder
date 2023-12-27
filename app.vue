@@ -266,31 +266,16 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- CONTENT -->
-          <div class="grow flex flex-col gap-4 lg:flex-row lg:gap-10 justify-center items-center py-6 px-4">
-            <div class="h-[75vh] xl:h-[65vh] 2xl:h-[75vh] relative group">
+          <div class="grow flex flex-col gap-4 lg:flex-row lg:gap-10 justify-center items-stretch py-6 px-4">
+            <div class="grow max-h-[75vh] w-full relative group"> <!-- h-[clamp(50px,75vh,75vh)] -->
               <!--GAME IMAGE-->
-              <Transition name="flip">
-                <NuxtImg v-if="!pending && game" :key="game.id"
-                  :src="'https://images.igdb.com/igdb/image/upload/t_720p/' + game.cover.image_id + '.png'" placeholder
-                  class="h-full w-full object-contain" /> <!-- sizes="500px md:600px lg:1000px"-->
-              </Transition>
-              <!--NO GAME FOUND-->
-              <div v-if="!pending && !error && !game"
-                class="h-full w-full p-12 text-text border-2 border-dashed border-text flex items-center">
-                <span>No game corresponding to this filter</span>
-              </div>
-              <!--LOADER-->
-              <div v-if="pending" class="h-full w-full p-12 flex items-center">
-                <Loader />
-              </div>
-              <!--ERROR BOX-->
-              <div v-if="!pending && error"
-                class="h-full w-full p-12 text-accent border-2 border-accent flex items-center">
-                <span>An error as occured, try again or contact the admin if it persists</span>
-              </div>
+              <NuxtImg v-if="!pending && game" :key="game.id"
+                :src="'https://images.igdb.com/igdb/image/upload/t_720p/' + game.cover.image_id + '.png'" placeholder
+                class="absolute h-full w-full object-contain bg-background-950 border-2 border-text" />
+
               <!--IMAGE HOVER BOX-->
               <NuxtLink :to="game.url" target="_blank" v-if="!pending && game"
-                class="absolute w-full h-full p-1 bg-background bg-opacity-70 top-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center gap-3 text-center">
+                class="absolute w-full h-full p-1 bg-background bg-opacity-70 top-0 opacity-0 border-2 border-primary group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center gap-3 text-center">
                 <span class="text-2xl mb-2">{{ game.name }}</span>
                 <span class="text-xl mb-2"><span class="underline">First release:</span>{{ " " +
                   utsToStr(game.first_release_date) }}</span>
@@ -302,7 +287,8 @@ onBeforeUnmount(() => {
                 </div>
                 <span>Genres:</span>
                 <div class="flex flex-wrap gap-2 justify-center mb-2">
-                  <div v-for="genre in game.genres" class="p-2 bg-background border-2 border-background-600">{{ genre.name
+                  <div v-for="genre in game.genres" class="p-2 bg-background border-2 border-background-600">{{
+                    genre.name
                   }}</div>
                 </div>
                 <span>Game modes:</span>
@@ -313,13 +299,30 @@ onBeforeUnmount(() => {
                 </div>
                 <span class="text-primary font-bold my-2">Click to get more info!</span>
               </NuxtLink>
+
+
+              <!--NO GAME FOUND-->
+              <div v-if="!pending && !error && !game"
+                class="absolute h-full w-full p-12 text-text border-2 border-dashed border-text flex justify-center items-center">
+                <span>No game corresponding to this filter</span>
+              </div>
+              <!--LOADER-->
+              <div v-if="pending" class="absolute h-full w-full p-12 flex justify-center items-center">
+                <Loader />
+              </div>
+              <!--ERROR BOX-->
+              <div v-if="!pending && error"
+                class="absolute h-full w-full p-12 text-accent border-2 border-accent flex justify-center items-center">
+                <span>An error as occured, try again or contact the admin if it persists</span>
+              </div>
+
             </div>
-            <div class="flex flex-col">
+            <div class="flex flex-col my-auto">
               <button type="button" class="font-bold text-2xl px-4 py-2 bg-primary text-background-950"
                 @click="nextGame()">Next
                 Game</button>
               <UDivider label="OR" class="my-2" v-if="windowWidth > 640" />
-              <span v-if="windowWidth > 640">Press <span
+              <span v-if="windowWidth > 640" class="text-center">Press <span
                   class="font-bold underline underline-offset-4 decoration-primary">SPACEBAR</span> to find a
                 game to
                 play!</span>
