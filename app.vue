@@ -279,7 +279,7 @@ onBeforeUnmount(() => {
 
           <!-- CONTENT -->
           <div class="grow flex flex-col gap-4 lg:flex-row lg:gap-10 justify-center items-stretch py-6 px-4">
-            <div class="grow max-h-[75vh] w-full relative group"> <!-- h-[clamp(50px,75vh,75vh)] -->
+            <div class="grow max-h-[75vh] w-full relative group lg:mx-10"> <!-- h-[clamp(50px,75vh,75vh)] -->
               <!--GAME IMAGE-->
               <img v-if="!pending && game" :key="game.id"
                 :src="'https://images.igdb.com/igdb/image/upload/t_720p/' + game.cover.image_id + '.png'"
@@ -330,7 +330,7 @@ onBeforeUnmount(() => {
               </div>
 
             </div>
-            <div class="flex flex-col my-auto">
+            <div class="flex flex-col my-auto lg:min-w-[350px] lg:mx-10">
               <button type="button" class="font-bold text-2xl px-4 py-2 bg-primary text-background-950"
                 @click="nextGame()">Next
                 Game</button>
