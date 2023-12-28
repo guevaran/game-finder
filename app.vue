@@ -198,6 +198,18 @@ function resizeHandler() {
   windowWidth.value = window.innerWidth
 }
 
+function onImgError(event: Event) {
+  console.log("onImgError")
+  if (event.target && game.value) {
+    var imgEl = event.target as HTMLImageElement
+    if (imgEl.src.includes('t_720p')) {
+      imgEl.src = 'https://images.igdb.com/igdb/image/upload/t_cover_big/' + game.value.cover.image_id + '.png'
+    } else if (imgEl.src.includes('t_cover_big')) {
+      imgEl.src = 'https://images.igdb.com/igdb/image/upload/t_cover_small/' + game.value.cover.image_id + '.png'
+    }
+  }
+}
+
 // ----- UTILS -----
 
 // convert year to unix timestamp (i=0 -> startDate, i=1 -> endDate)
@@ -269,8 +281,9 @@ onBeforeUnmount(() => {
           <div class="grow flex flex-col gap-4 lg:flex-row lg:gap-10 justify-center items-stretch py-6 px-4">
             <div class="grow max-h-[75vh] w-full relative group"> <!-- h-[clamp(50px,75vh,75vh)] -->
               <!--GAME IMAGE-->
-              <NuxtImg v-if="!pending && game" :key="game.id"
-                :src="'https://images.igdb.com/igdb/image/upload/t_720p/' + game.cover.image_id + '.png'" placeholder
+              <img v-if="!pending && game" :key="game.id"
+                :src="'https://images.igdb.com/igdb/image/upload/t_720p/' + game.cover.image_id + '.png'"
+                @error="onImgError($event)"
                 class="absolute h-full w-full object-contain bg-background-950 border-2 border-text" />
 
               <!--IMAGE HOVER BOX-->
