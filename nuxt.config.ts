@@ -17,7 +17,10 @@ export default defineNuxtConfig({
           name: "og:description",
           content: "What to play? With Game Finder, discover your next video game to play!",
         },
-      ]
+      ],
+      htmlAttrs: {
+        lang: 'en'
+      }
     },
   },
   css: ['~/assets/css/main.css'],

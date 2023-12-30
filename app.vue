@@ -261,7 +261,7 @@ onBeforeUnmount(() => {
           <!--HEADER-->
           <div class="w-full flex justify-between sticky top-0 gap-4 pr-4">
             <div class="p-4">
-              <NuxtImg src="/imgs/logo.png" width="40" height="50" />
+              <NuxtImg src="/imgs/logo.png" alt="Logo Game-Finder" width="40" height="50" />
             </div>
             <div class="flex gap-2 md:gap-4 text-center items-center">
               <NuxtLink to="https://ko-fi.com/nicolasguevara" target="_blank" class="p-2 text-xl hover:text-primary">Buy
@@ -283,7 +283,7 @@ onBeforeUnmount(() => {
               <!--GAME IMAGE-->
               <img v-if="!pending && game" :key="game.id"
                 :src="'https://images.igdb.com/igdb/image/upload/t_720p/' + game.cover.image_id + '.png'"
-                @error="onImgError($event)"
+                :alt="'Image ' + game.name" @error="onImgError($event)"
                 class="absolute h-full w-full object-contain bg-background-950 border-2 border-text" />
 
               <!--IMAGE HOVER BOX-->
