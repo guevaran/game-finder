@@ -18,16 +18,14 @@ Game Finder uses data from [IGDB](https://www.igdb.com/).
 ## Setup locally
 
 1. Clone the repo : `git clone https://github.com/guevaran/game-finder.git`
-   
-3. Follow account creation of [IGDB documentation](https://api-docs.igdb.com/#account-creation)
-   
-5. Create a file `.env` at project root with content :
+2. Follow account creation of [IGDB documentation](https://api-docs.igdb.com/#account-creation)
+3. Create a file `.env` at project root with content :
 
 ```plaintext
 IGDB_API_BASE_URL="https://api.igdb.com/v4"
-IGDB_TWITCH_AUTH_URL="https://id.twitch.tv/oauth2/token?client_id=<clientId>&client_secret=<clientSecret>&grant_type=client_credentials"
-IGDB_CLIENT_ID="<clientId>"
-IGDB_TOKEN="<accessToken>"
+IGDB_TWITCH_AUTH_URL="https://id.twitch.tv/oauth2/token?client_id=<CLIENT_ID>&client_secret=<CLIENT_SECRET>&grant_type=client_credentials"
+IGDB_CLIENT_ID="<IGDB_CLIENT_ID>"
+IGDB_CLIENT_SECRET="<IGDB_CLIENT_SECRET>"
 ```
 
 6. Install the dependencies:
@@ -59,4 +57,3 @@ bun run dev
 ## IGDB Token Refresh
 
 FYI the server/autoRefreshToken.ts script runs on weekly basis while the server is running in order to refresh the access token of IGDB that has an expiration date.
-
