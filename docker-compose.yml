@@ -4,11 +4,11 @@ services:
     container_name: game-finder
     restart: unless-stopped
     ports:
-      - 3003:3003
+      - 3003:3000
     env_file:
       - .env
     volumes:
-      - .env:/app/.env
+      - ./.env:/app/.env
     # environment:
     #   - IGDB_API_BASE_URL=${IGDB_API_BASE_URL}
     #   - IGDB_TWITCH_AUTH_URL=${IGDB_TWITCH_AUTH_URL}
