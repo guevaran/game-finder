@@ -5,8 +5,12 @@ services:
     restart: unless-stopped
     ports:
       - 3003:3003
-    environment:
-      - IGDB_API_BASE_URL=${IGDB_API_BASE_URL}
-      - IGDB_TWITCH_AUTH_URL=${IGDB_TWITCH_AUTH_URL}
-      - IGDB_CLIENT_ID=${IGDB_CLIENT_ID}
-      - IGDB_CLIENT_SECRET=${IGDB_CLIENT_SECRET}
+    env_file:
+      - .env
+    volumes:
+      - .env:/app/.env
+    # environment:
+    #   - IGDB_API_BASE_URL=${IGDB_API_BASE_URL}
+    #   - IGDB_TWITCH_AUTH_URL=${IGDB_TWITCH_AUTH_URL}
+    #   - IGDB_CLIENT_ID=${IGDB_CLIENT_ID}
+    #   - IGDB_CLIENT_SECRET=${IGDB_CLIENT_SECRET}
