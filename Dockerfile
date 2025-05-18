@@ -11,4 +11,4 @@ COPY . .
 EXPOSE 3003
 
 RUN npm run build
-CMD [ "npm", "run", "start" ]
+CMD ["node", "--max-old-space-size=2048", ".output/server/index.mjs"]
