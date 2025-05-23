@@ -27,9 +27,10 @@ export const getEnvValue = (key: string) => {
 	// split the line (delimiter is '=') and return the item at index 2
 	if (matchedLine !== undefined) {
 		const [k, ...tvalue] = matchedLine.split('=');
+
 		let value = tvalue.join('=');
 		// Remove quotes from beginning and end if they exist
-		value = value.replace(/^["']|["']$/g, '');
+		value = value.replace(/^\s*["']|["']\s*$/g, '');
 		return value;
 	}
 

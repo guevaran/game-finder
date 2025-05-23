@@ -1,6 +1,13 @@
 services:
   game-finder:
+    # PROD
     image: ghcr.io/guevaran/game-finder:latest
+    # DEV
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    # image: game-finder:latest
+
     container_name: game-finder
     restart: unless-stopped
     ports:

@@ -29,15 +29,21 @@ function startScheduler() {
 
 async function refreshToken() {
 	var twitchAuthUrl = getEnvValue('IGDB_TWITCH_AUTH_URL');
+	console.log('twitchAuthUrl: ', twitchAuthUrl);
+
 	if (twitchAuthUrl) {
 		const todayStr = new Date().toISOString().split('T')[0];
 		var lastRefreshedDate = getEnvValue('IGDB_TOKEN_REFRESHED_DATE');
+		console.log('lastRefreshedDate: ', lastRefreshedDate);
 
 		// if token not already refreshed today
 		if (lastRefreshedDate != todayStr) {
 			// "https://id.twitch.tv/oauth2/token?client_id=<CLIENT_ID>&client_secret=<CLIENT_SECRET>&grant_type=client_credentials"
 			const clientId = getEnvValue('IGDB_CLIENT_ID');
 			const clientSecret = getEnvValue('IGDB_CLIENT_SECRET');
+
+			console.log('clientId: ', clientId);
+			// console.log('clientSecret: ', clientSecret);
 
 			if (clientId && clientSecret) {
 				twitchAuthUrl = twitchAuthUrl
@@ -49,7 +55,8 @@ async function refreshToken() {
 				method: 'POST',
 			});
 			const jsonRsp = await response.json();
-			console.log('twitchAuthJsonRsp ', jsonRsp);
+
+			console.log('twitchAuthJsonRsp: ', jsonRsp);
 
 			if (jsonRsp.access_token) {
 				console.log(
