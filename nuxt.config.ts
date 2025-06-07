@@ -28,25 +28,24 @@ export default defineNuxtConfig({
 	css: ['~/assets/css/main.css'],
 	postcss: {
 		plugins: {
-			tailwindcss: {},
+			'@tailwindcss/postcss': {},
 			autoprefixer: {},
 		},
 	},
-	// runtimeConfig: {
-	//   public: {
-	//     IGDB_CLIENT_ID: process.env.IGDB_CLIENT_ID,
-	//     IGDB_TOKEN: process.env.IGDB_TOKEN,
-	//   },
+	// tailwindcss: {
+	// 	exposeConfig: true,
 	// },
+
 	modules: [
+		'@nuxt/ui',
 		'nuxt-icon',
 		'@nuxtjs/google-fonts',
 		'@nuxt/image',
 		'nuxt-api-party',
-		'@nuxt/ui',
 		'nuxt-scheduler',
+		// '@nuxtjs/tailwindcss',
 	],
-	// plugins: ['~/plugins/vue-slider.client.js'],
+
 	googleFonts: {
 		download: true,
 		families: {
@@ -60,7 +59,6 @@ export default defineNuxtConfig({
 				// Global headers sent with each request
 				headers: {
 					'Client-ID': process.env.IGDB_CLIENT_ID!,
-					// Authorization: `Bearer ${process.env.IGDB_TOKEN}`,
 				},
 			},
 		},

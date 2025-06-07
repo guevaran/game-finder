@@ -1,9 +1,4 @@
 <script setup lang="ts">
-// @ts-ignore
-import VueSlider from 'vue-slider-component/dist-css/vue-slider-component.umd.min.js';
-import 'vue-slider-component/dist-css/vue-slider-component.css';
-import 'vue-slider-component/theme/default.css';
-
 const windowWidth = ref(0);
 const showSideBar = ref(false);
 
@@ -142,6 +137,11 @@ const filter: Filter = reactive({
 	rangeDate: [1970, new Date().getFullYear()],
 });
 
+// Format the year for display in the slider tooltips
+function formatYear(year: number) {
+	return year === new Date().getFullYear() ? 'now' : year.toString();
+}
+
 // [{ lbl: '1970', val: 1970 }, ..., { lbl: 'now', val: 2023 }]
 function calcDataRangeDate() {
 	const now = new Date();
@@ -208,6 +208,36 @@ const gameModes = ref([
 		name: 'Split screen',
 	},
 ]);
+
+const formatDateRange = () => {
+	return filter.rangeDate[0] + ' - ' + filter.rangeDate[1];
+};
+
+// Transform platforms data to include a label property
+const platformItems = computed(() => {
+	if (!platforms.value) return [];
+	return platforms.value.map((platform) => ({
+		...platform,
+		label: platform.name,
+	}));
+});
+
+// Transform genres data to include a label property
+const genreItems = computed(() => {
+	if (!genres.value) return [];
+	return genres.value.map((genre) => ({
+		...genre,
+		label: genre.name,
+	}));
+});
+
+// Update game modes to include a label property
+const gameModeItems = computed(() => {
+	return gameModes.value.map((gm) => ({
+		...gm,
+		label: gm.name,
+	}));
+});
 
 // ----- EVENT HANDLERS -----
 
@@ -491,34 +521,35 @@ onBeforeUnmount(() => {
 					<!-- Filter Minimum rating -->
 					<div class="p-4">
 						<div class="flex justify-between mb-2">
-							<span>Minimum rating:</span
-							><span>{{ filter.rate + ' / 100' }}</span>
+							<span>Minimum rating:</span>
+							<span>{{ filter.rate + ' / 100' }}</span>
 						</div>
-						<URange
+						<USlider
 							v-model="filter.rate"
-							name="range"
 							:min="0"
 							:max="100"
-						/>
+							:step="1"
+						>
+						</USlider>
 					</div>
 					<!-- Filter Platforms -->
 					<div class="p-4 flex flex-col">
 						<span class="mb-2">Platforms:</span>
 						<USelectMenu
 							v-model="filter.platforms"
-							:options="platforms"
+							:items="platformItems"
 							multiple
 							searchable
 							:search-attributes="[
-								'name',
+								'label',
 								'alternative_name',
 								'abbreviation',
 							]"
 							searchable-placeholder="Search a platform..."
 							placeholder="Select platforms"
 						>
-							<template #option="{ option: platform }">
-								{{ platform.name }}
+							<template #option="{ item: platform }">
+								{{ platform.label }}
 							</template>
 						</USelectMenu>
 					</div>
@@ -527,15 +558,15 @@ onBeforeUnmount(() => {
 						<span class="mb-2">Genres:</span>
 						<USelectMenu
 							v-model="filter.genres"
-							:options="genres"
+							:items="genreItems"
 							multiple
 							searchable
-							:search-attributes="['name']"
+							:search-attributes="['label']"
 							searchable-placeholder="Search a genre..."
 							placeholder="Select genres"
 						>
-							<template #option="{ option: genre }">
-								{{ genre.name }}
+							<template #option="{ item: genre }">
+								{{ genre.label }}
 							</template>
 						</USelectMenu>
 					</div>
@@ -544,32 +575,30 @@ onBeforeUnmount(() => {
 						<span class="mb-2">Game modes:</span>
 						<USelectMenu
 							v-model="filter.gameModes"
-							:options="gameModes"
+							:items="gameModeItems"
 							multiple
 							searchable
-							:search-attributes="['name']"
+							:search-attributes="['label']"
 							searchable-placeholder="Search a game mode..."
 							placeholder="Select game modes"
 						>
-							<template #option="{ option: gm }">
-								{{ gm.name }}
+							<template #option="{ item: gm }">
+								{{ gm.label }}
 							</template>
 						</USelectMenu>
 					</div>
 					<!-- Filter First release date -->
 					<div class="p-4 flex flex-col">
-						<span class="mb-2">First release date between:</span>
-						<vue-slider
+						<span class="mb-2"
+							>First release date between: {{ formatDateRange() }}
+						</span>
+						<USlider
 							v-model="filter.rangeDate"
-							:enable-cross="false"
-							:data="dataRangeDate"
-							:data-value="'val'"
-							:data-label="'lbl'"
-							absorb
-							:tooltip-placement="'top'"
-							:marks="dataRangeMarks"
-						></vue-slider>
-						<!--:tooltip="'always'"-->
+							:min="1970"
+							:max="new Date().getFullYear()"
+							:step="1"
+						>
+						</USlider>
 					</div>
 				</SideBar>
 			</template>
@@ -592,28 +621,7 @@ onBeforeUnmount(() => {
 	overflow-x: clip;
 }
 
-.vue-slider-rail {
-	@apply h-2;
-}
-
-.vue-slider-process {
-	@apply bg-primary;
-}
-
-.vue-slider-marks {
-	@apply bg-background-700 h-2 rounded-full;
-}
-
-.vue-slider-dot-handle {
-	@apply bg-background border-2 border-primary;
-}
-
-.vue-slider-dot-tooltip-inner {
-	@apply bg-background-500 border-background-500;
-}
-
 .flip-enter-active {
-	/* transition: cardFlip .275s forwards linear; */
 	transition: all 0.3s linear;
 }
 
@@ -624,18 +632,4 @@ onBeforeUnmount(() => {
 .flip-enter-to {
 	transform: rotateZ(0deg) rotateY(0deg);
 }
-
-/* @keyframes cardFlip {
-  0% {
-    transform: rotateZ(0deg) rotateY(180deg);
-  }
-
-  50% {
-    transform: rotateZ(-10deg) rotateY(90deg);
-  }
-
-  100% {
-    transform: rotateZ(0deg) rotateY(0deg);
-  }
-} */
 </style>
