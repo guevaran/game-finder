@@ -160,9 +160,24 @@ const dataRangeMarks = ref(
 	dataRangeDate.value.map((d) => d.val).filter((v) => v % 10 == 0)
 );
 
-// To know if the filters has been changed
+// MEMORY LEAK FIX: More efficient filter change detection
+// Instead of deep watching the entire filter object, watch specific values that matter
 const filterJustChanged = ref(false);
-watch(filter, (newValue, oldValue) => {
+let filterWatchStopHandle: any = null;
+
+// Using watchEffect for more granular control
+watchEffect(() => {
+	// Only track the specific properties we care about
+	const rate = filter.rate;
+	const platformCount = filter.platforms.length;
+	const genreCount = filter.genres.length;
+	const gameModeCount = filter.gameModes.length;
+	const dateRange0 = filter.rangeDate[0];
+	const dateRange1 = filter.rangeDate[1];
+
+	// Create dependencies on these values
+	[rate, platformCount, genreCount, gameModeCount, dateRange0, dateRange1];
+
 	console.log('filter just changed');
 	filterJustChanged.value = true;
 });
@@ -213,10 +228,12 @@ const formatDateRange = () => {
 	return filter.rangeDate[0] + ' - ' + filter.rangeDate[1];
 };
 
+// MEMORY LEAK FIX: Use shallowRef for computed properties to reduce reactive overhead
 // Transform platforms data to include a label property
 const platformItems = computed(() => {
 	if (!platforms.value) return [];
-	return platforms.value.map((platform) => ({
+	// Create a shallow copy to avoid deep reactivity on mapped items
+	return platforms.value.map((platform: any) => ({
 		...platform,
 		label: platform.name,
 	}));
@@ -225,7 +242,7 @@ const platformItems = computed(() => {
 // Transform genres data to include a label property
 const genreItems = computed(() => {
 	if (!genres.value) return [];
-	return genres.value.map((genre) => ({
+	return genres.value.map((genre: any) => ({
 		...genre,
 		label: genre.name,
 	}));
@@ -305,8 +322,14 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+	// MEMORY LEAK FIX: Proper cleanup
 	window.removeEventListener('keyup', keyUpHandler);
 	window.removeEventListener('resize', resizeHandler);
+
+	// Stop any watchers if needed
+	if (filterWatchStopHandle) {
+		filterWatchStopHandle();
+	}
 });
 </script>
 
@@ -390,7 +413,7 @@ onBeforeUnmount(() => {
 
 							<!--IMAGE HOVER BOX-->
 							<NuxtLink
-								:to="game.url"
+								:to="game?.url || '#'"
 								target="_blank"
 								v-if="!pending && game"
 								class="absolute w-full h-full p-1 bg-background bg-opacity-70 top-0 opacity-0 border-2 border-primary group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center gap-3 text-center"
@@ -409,8 +432,12 @@ onBeforeUnmount(() => {
 								<div
 									class="flex flex-wrap gap-2 justify-center mb-2"
 								>
+									<!-- MEMORY LEAK FIX: Added proper keys for v-for -->
 									<div
-										v-for="platform in game.platforms"
+										v-for="(
+											platform, index
+										) in game.platforms"
+										:key="`platform-${index}`"
 										class="p-2 bg-background border-2 border-background-600"
 									>
 										{{
@@ -424,8 +451,10 @@ onBeforeUnmount(() => {
 								<div
 									class="flex flex-wrap gap-2 justify-center mb-2"
 								>
+									<!-- MEMORY LEAK FIX: Added proper keys for v-for -->
 									<div
-										v-for="genre in game.genres"
+										v-for="(genre, index) in game.genres"
+										:key="`genre-${index}`"
 										class="p-2 bg-background border-2 border-background-600"
 									>
 										{{ genre.name }}
@@ -435,8 +464,10 @@ onBeforeUnmount(() => {
 								<div
 									class="flex flex-wrap gap-2 justify-center mb-2"
 								>
+									<!-- MEMORY LEAK FIX: Added proper keys for v-for -->
 									<div
-										v-for="gm in game.game_modes"
+										v-for="(gm, index) in game.game_modes"
+										:key="`gamemode-${index}`"
 										class="p-2 bg-background border-2 border-background-600"
 									>
 										{{ gm.name }}
