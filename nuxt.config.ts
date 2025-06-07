@@ -38,7 +38,7 @@ export default defineNuxtConfig({
 
 	modules: [
 		'@nuxt/ui',
-		'nuxt-icon',
+		'@nuxt/icon',
 		'@nuxtjs/google-fonts',
 		'@nuxt/image',
 		'nuxt-api-party',

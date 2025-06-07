@@ -16,7 +16,7 @@
 		"autoprefixer": "^10.4.16",
 		"nuxt": "^3.8.2",
 		"nuxt-api-party": "^2.2.2",
-		"nuxt-icon": "^0.6.6",
+		"@nuxt/icon": "^0.6.6",
 		"nuxt-scheduler": "^0.1.9",
 		"prettier": "^3.5.3",
 		"vue": "^3.3.8",
