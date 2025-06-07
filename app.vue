@@ -306,7 +306,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
 	window.removeEventListener('keyup', keyUpHandler);
-	window.addEventListener('resize', resizeHandler);
+	window.removeEventListener('resize', resizeHandler);
 });
 </script>
 
