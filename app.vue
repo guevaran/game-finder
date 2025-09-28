@@ -51,7 +51,7 @@ const {
 		// Get gameCount depending of filters
 		const count: { count: number } = await $igdb('/games/count', {
 			method: 'POST',
-			body: `where total_rating_count>5 & parent_game=null & cover!=null & name!=null 
+			body: `where total_rating_count>5 & parent_game=null & cover!=null & name!=null
     & total_rating >= ${filter.rate}
     & first_release_date >= ${yearToUTS(filter.rangeDate[0], 0)}
     & first_release_date <= ${yearToUTS(filter.rangeDate[1], 1)}
@@ -70,8 +70,8 @@ const {
 		// Get random games depending of filters
 		const games: Game[] = await $igdb('/games', {
 			method: 'POST',
-			body: `fields name,cover.image_id,url,first_release_date,platforms.name,platforms.abbreviation,genres.name,game_modes.name; 
-    where total_rating_count>5 & parent_game=null & cover!=null & name!=null 
+			body: `fields name,cover.image_id,url,first_release_date,platforms.name,platforms.abbreviation,genres.name,game_modes.name;
+    where total_rating_count>5 & parent_game=null & cover!=null & name!=null
     & total_rating >= ${filter.rate}
     & first_release_date >= ${yearToUTS(filter.rangeDate[0], 0)}
     & first_release_date <= ${yearToUTS(filter.rangeDate[1], 1)}
@@ -170,29 +170,29 @@ const filterJustChanged = ref(false);
 let filterWatchStopHandle: any = null;
 
 // Debounced watcher: attach only on client after mount to avoid SSR churn
-// let filterChangeTimeout: number | null = null;
-// onMounted(() => {
-// 	filterWatchStopHandle = watch(
-// 		[
-// 			() => filter.rate,
-// 			() => filter.platforms.length,
-// 			() => filter.genres.length,
-// 			() => filter.gameModes.length,
-// 			() => filter.rangeDate[0],
-// 			() => filter.rangeDate[1],
-// 		],
-// 		() => {
-// 			// debounce to coalesce rapid changes from sliders/menus
-// 			if (filterChangeTimeout !== null) {
-// 				clearTimeout(filterChangeTimeout);
-// 			}
-// 			filterChangeTimeout = window.setTimeout(() => {
-// 				filterJustChanged.value = true;
-// 			}, 150);
-// 		},
-// 		{ immediate: false, flush: 'post' }
-// 	);
-// });
+let filterChangeTimeout: number | null = null;
+onMounted(() => {
+	filterWatchStopHandle = watch(
+		[
+			() => filter.rate,
+			() => filter.platforms.length,
+			() => filter.genres.length,
+			() => filter.gameModes.length,
+			() => filter.rangeDate[0],
+			() => filter.rangeDate[1],
+		],
+		() => {
+			// debounce to coalesce rapid changes from sliders/menus
+			if (filterChangeTimeout !== null) {
+				clearTimeout(filterChangeTimeout);
+			}
+			filterChangeTimeout = window.setTimeout(() => {
+				filterJustChanged.value = true;
+			}, 150);
+		},
+		{ immediate: false, flush: 'post' }
+	);
+});
 
 // Get platforms data
 // TODO: Error handling
@@ -330,13 +330,13 @@ onMounted(() => {
 	windowWidth.value = window.innerWidth;
 	showSideBar.value = windowWidth.value > 1024; // If screen width is minimum "lg" (1024px)
 	window.addEventListener('keyup', keyUpHandler);
-	window.addEventListener('resize', resizeHandler);
+	// window.addEventListener('resize', resizeHandler);
 });
 
 onBeforeUnmount(() => {
 	// MEMORY LEAK FIX: Proper cleanup
 	window.removeEventListener('keyup', keyUpHandler);
-	window.removeEventListener('resize', resizeHandler);
+	// window.removeEventListener('resize', resizeHandler);
 
 	// Stop any watchers if needed
 	if (filterWatchStopHandle) {
