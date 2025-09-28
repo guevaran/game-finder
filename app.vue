@@ -515,7 +515,7 @@ onBeforeUnmount(() => {
 							>
 								Next Game
 							</button>
-							<UDivider
+							<USeparator
 								label="OR"
 								class="my-2"
 								v-if="windowWidth > 640"
