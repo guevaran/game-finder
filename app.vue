@@ -63,7 +63,10 @@ const {
 		console.log('total game count', count);
 
 		// random offset calculated based on previously requested gameCount
-		const random0toCount = Math.floor(Math.random() * (count.count - 9));
+		const available = Math.max(0, (count?.count ?? 0) - 9);
+		const random0toCount = available > 0
+			? Math.floor(Math.random() * available)
+			: 0;
 
 		// Get random games depending of filters
 		const games: Game[] = await $igdb('/games', {
@@ -143,9 +146,9 @@ function formatYear(year: number) {
 }
 
 // [{ lbl: '1970', val: 1970 }, ..., { lbl: 'now', val: 2023 }]
-function calcDataRangeDate() {
+function calcDataRangeDate(): Array<{ lbl: string | number; val: number }> {
 	const now = new Date();
-	var data = [];
+	var data: Array<{ lbl: string | number; val: number }> = [];
 	for (let i = 1970; i <= now.getFullYear(); i++) {
 		data.push({
 			lbl: i == now.getFullYear() ? 'now' : i,
@@ -157,7 +160,7 @@ function calcDataRangeDate() {
 const dataRangeDate = ref(calcDataRangeDate());
 // [1970, 1980, ..., 2010, 2020]
 const dataRangeMarks = ref(
-	dataRangeDate.value.map((d) => d.val).filter((v) => v % 10 == 0)
+	dataRangeDate.value.map((d: { val: number }) => d.val).filter((v: number) => v % 10 == 0)
 );
 
 // MEMORY LEAK FIX: More efficient filter change detection
@@ -165,21 +168,29 @@ const dataRangeMarks = ref(
 const filterJustChanged = ref(false);
 let filterWatchStopHandle: any = null;
 
-// Using watchEffect for more granular control
-watchEffect(() => {
-	// Only track the specific properties we care about
-	const rate = filter.rate;
-	const platformCount = filter.platforms.length;
-	const genreCount = filter.genres.length;
-	const gameModeCount = filter.gameModes.length;
-	const dateRange0 = filter.rangeDate[0];
-	const dateRange1 = filter.rangeDate[1];
-
-	// Create dependencies on these values
-	[rate, platformCount, genreCount, gameModeCount, dateRange0, dateRange1];
-
-	console.log('filter just changed');
-	filterJustChanged.value = true;
+// Debounced watcher: attach only on client after mount to avoid SSR churn
+let filterChangeTimeout: number | null = null;
+onMounted(() => {
+	filterWatchStopHandle = watch(
+		[
+			() => filter.rate,
+			() => filter.platforms.length,
+			() => filter.genres.length,
+			() => filter.gameModes.length,
+			() => filter.rangeDate[0],
+			() => filter.rangeDate[1],
+		],
+		() => {
+			// debounce to coalesce rapid changes from sliders/menus
+			if (filterChangeTimeout !== null) {
+				clearTimeout(filterChangeTimeout);
+			}
+			filterChangeTimeout = window.setTimeout(() => {
+				filterJustChanged.value = true;
+			}, 150);
+		},
+		{ immediate: false, flush: 'post' }
+	);
 });
 
 // Get platforms data
@@ -187,14 +198,14 @@ watchEffect(() => {
 const { data: platforms, error: errPlatforms } = useIgdbData('/platforms', {
 	method: 'POST',
 	body: 'fields name,alternative_name,abbreviation; limit 500; sort name asc;',
-});
+} as any);
 
 // Get genres data
 // TODO: Error handling
 const { data: genres, error: errGenres } = useIgdbData('/genres', {
 	method: 'POST',
 	body: 'fields name; limit 500; sort name asc;',
-});
+} as any);
 
 // Get gameModes data (static to avoid another API request)
 const gameModes = ref([
@@ -249,8 +260,8 @@ const genreItems = computed(() => {
 });
 
 // Update game modes to include a label property
-const gameModeItems = computed(() => {
-	return gameModes.value.map((gm) => ({
+	const gameModeItems = computed(() => {
+	return gameModes.value.map((gm: { id: number; name: string }) => ({
 		...gm,
 		label: gm.name,
 	}));
@@ -329,6 +340,12 @@ onBeforeUnmount(() => {
 	// Stop any watchers if needed
 	if (filterWatchStopHandle) {
 		filterWatchStopHandle();
+	}
+
+	// Clear pending debounce timeout
+	if (filterChangeTimeout !== null) {
+		clearTimeout(filterChangeTimeout);
+		filterChangeTimeout = null;
 	}
 });
 </script>
