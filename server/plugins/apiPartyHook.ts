@@ -30,9 +30,10 @@ export default defineNitroPlugin((nitroApp) => {
 
 		// 2) Attach bearer token safely (headers may be a plain object)
 		const token = getEnvValue('IGDB_TOKEN');
-		ctx.options.headers = {
-			...(ctx.options.headers || {}),
-			Authorization: `Bearer ${token}`,
-		};
+		// ctx.options.headers = {
+		// 	...(ctx.options.headers || {}),
+		// 	Authorization: `Bearer ${token}`,
+		// };
+		ctx.options.headers.set('Authorization', `Bearer ${token}`);
 	});
 });

@@ -5,11 +5,17 @@ import os from 'os';
 const envFilePath = path.resolve('.env');
 
 /**
- * Reads .env file & converts to array
- * @returns {string[]} Array of env file lines
+ * Reads .env file and returns non-empty lines with normalized EOL.
+ * - Supports both LF and CRLF
+ * - Filters out blank lines to avoid inserting empty entries on write
  */
-export const readEnvVars = () => {
-	return fs.readFileSync(envFilePath, 'utf-8').split(os.EOL);
+export const readEnvVars = (): string[] => {
+	if (!fs.existsSync(envFilePath)) return [];
+	const raw = fs.readFileSync(envFilePath, 'utf-8');
+	// Normalize EOL to \n, then split
+	const lines = raw.replace(/\r\n/g, '\n').split('\n');
+	// Filter out purely empty lines
+	return lines.filter((line) => line.trim().length > 0);
 };
 
 /**
@@ -21,13 +27,13 @@ export const readEnvVars = () => {
  */
 export const getEnvValue = (key: string) => {
 	const envVars = readEnvVars();
-	// find the line that contains the key (exact match)
-	const matchedLine = envVars.find((line) => line.split('=')[0] === key);
+	// find the line that contains the key (exact match on trimmed key)
+	const matchedLine = envVars.find(
+		(line) => line.split('=')[0].trim() === key
+	);
 
-	// split the line (delimiter is '=') and return the item at index 2
 	if (matchedLine !== undefined) {
-		const [k, ...tvalue] = matchedLine.split('=');
-
+		const [, ...tvalue] = matchedLine.split('=');
 		let value = tvalue.join('=');
 		// Remove quotes from beginning and end if they exist
 		value = value.replace(/^\s*["']|["']\s*$/g, '');
@@ -45,18 +51,18 @@ export const getEnvValue = (key: string) => {
 export const setEnvValue = (key: string, value: string) => {
 	const envVars = readEnvVars();
 
-	const targetLine = envVars.find((line) => line.split('=')[0] === key);
+	// Find index by trimmed key match
+	const idx = envVars.findIndex((line) => line.split('=')[0].trim() === key);
 
-	if (targetLine !== undefined) {
+	if (idx !== -1) {
 		// update existing line
-		const targetLineIndex = envVars.indexOf(targetLine);
-		// replace the key/value with the new value
-		envVars.splice(targetLineIndex, 1, `${key}="${value}"`);
+		envVars[idx] = `${key}="${value}"`;
 	} else {
-		// create new key value
+		// create new key value at the end (no blank spacer)
 		envVars.push(`${key}="${value}"`);
 	}
 
-	// write everything back to the file system
-	fs.writeFileSync(envFilePath, envVars.join(os.EOL));
+	// Write back with a single trailing newline, consistent EOL
+	const content = envVars.join(os.EOL) + os.EOL;
+	fs.writeFileSync(envFilePath, content, 'utf-8');
 };
