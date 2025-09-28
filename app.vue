@@ -64,9 +64,8 @@ const {
 
 		// random offset calculated based on previously requested gameCount
 		const available = Math.max(0, (count?.count ?? 0) - 9);
-		const random0toCount = available > 0
-			? Math.floor(Math.random() * available)
-			: 0;
+		const random0toCount =
+			available > 0 ? Math.floor(Math.random() * available) : 0;
 
 		// Get random games depending of filters
 		const games: Game[] = await $igdb('/games', {
@@ -160,7 +159,9 @@ function calcDataRangeDate(): Array<{ lbl: string | number; val: number }> {
 const dataRangeDate = ref(calcDataRangeDate());
 // [1970, 1980, ..., 2010, 2020]
 const dataRangeMarks = ref(
-	dataRangeDate.value.map((d: { val: number }) => d.val).filter((v: number) => v % 10 == 0)
+	dataRangeDate.value
+		.map((d: { val: number }) => d.val)
+		.filter((v: number) => v % 10 == 0)
 );
 
 // MEMORY LEAK FIX: More efficient filter change detection
@@ -169,29 +170,29 @@ const filterJustChanged = ref(false);
 let filterWatchStopHandle: any = null;
 
 // Debounced watcher: attach only on client after mount to avoid SSR churn
-let filterChangeTimeout: number | null = null;
-onMounted(() => {
-	filterWatchStopHandle = watch(
-		[
-			() => filter.rate,
-			() => filter.platforms.length,
-			() => filter.genres.length,
-			() => filter.gameModes.length,
-			() => filter.rangeDate[0],
-			() => filter.rangeDate[1],
-		],
-		() => {
-			// debounce to coalesce rapid changes from sliders/menus
-			if (filterChangeTimeout !== null) {
-				clearTimeout(filterChangeTimeout);
-			}
-			filterChangeTimeout = window.setTimeout(() => {
-				filterJustChanged.value = true;
-			}, 150);
-		},
-		{ immediate: false, flush: 'post' }
-	);
-});
+// let filterChangeTimeout: number | null = null;
+// onMounted(() => {
+// 	filterWatchStopHandle = watch(
+// 		[
+// 			() => filter.rate,
+// 			() => filter.platforms.length,
+// 			() => filter.genres.length,
+// 			() => filter.gameModes.length,
+// 			() => filter.rangeDate[0],
+// 			() => filter.rangeDate[1],
+// 		],
+// 		() => {
+// 			// debounce to coalesce rapid changes from sliders/menus
+// 			if (filterChangeTimeout !== null) {
+// 				clearTimeout(filterChangeTimeout);
+// 			}
+// 			filterChangeTimeout = window.setTimeout(() => {
+// 				filterJustChanged.value = true;
+// 			}, 150);
+// 		},
+// 		{ immediate: false, flush: 'post' }
+// 	);
+// });
 
 // Get platforms data
 // TODO: Error handling
@@ -260,7 +261,7 @@ const genreItems = computed(() => {
 });
 
 // Update game modes to include a label property
-	const gameModeItems = computed(() => {
+const gameModeItems = computed(() => {
 	return gameModes.value.map((gm: { id: number; name: string }) => ({
 		...gm,
 		label: gm.name,
