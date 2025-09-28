@@ -330,13 +330,13 @@ onMounted(() => {
 	windowWidth.value = window.innerWidth;
 	showSideBar.value = windowWidth.value > 1024; // If screen width is minimum "lg" (1024px)
 	window.addEventListener('keyup', keyUpHandler);
-	// window.addEventListener('resize', resizeHandler);
+	window.addEventListener('resize', resizeHandler);
 });
 
 onBeforeUnmount(() => {
 	// MEMORY LEAK FIX: Proper cleanup
 	window.removeEventListener('keyup', keyUpHandler);
-	// window.removeEventListener('resize', resizeHandler);
+	window.removeEventListener('resize', resizeHandler);
 
 	// Stop any watchers if needed
 	if (filterWatchStopHandle) {
