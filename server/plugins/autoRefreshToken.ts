@@ -34,9 +34,7 @@ async function refreshToken() {
 
 	if (twitchAuthUrl) {
 		const todayStr = new Date().toISOString().split('T')[0];
-		var lastRefreshedDate = await getTokenValue(
-			'IGDB_TOKEN_REFRESHED_DATE'
-		);
+		var lastRefreshedDate = await getTokenValue('IGDB_TOKEN_REFRESHED_DATE');
 		console.log('lastRefreshedDate: ', lastRefreshedDate);
 
 		// if token not already refreshed today
@@ -45,13 +43,11 @@ async function refreshToken() {
 			const clientId = getEnvValue('IGDB_CLIENT_ID');
 			const clientSecret = getEnvValue('IGDB_CLIENT_SECRET');
 
-			console.log('clientId: ', clientId);
+			// console.log('clientId: ', clientId);
 			// console.log('clientSecret: ', clientSecret);
 
 			if (clientId && clientSecret) {
-				twitchAuthUrl = twitchAuthUrl
-					.replace('<CLIENT_ID>', clientId)
-					.replace('<CLIENT_SECRET>', clientSecret);
+				twitchAuthUrl = twitchAuthUrl.replace('<CLIENT_ID>', clientId).replace('<CLIENT_SECRET>', clientSecret);
 			}
 
 			const response = await fetch(twitchAuthUrl, {
@@ -59,13 +55,10 @@ async function refreshToken() {
 			});
 			const jsonRsp = await response.json();
 
-			console.log('twitchAuthJsonRsp: ', jsonRsp);
+			// console.log('twitchAuthJsonRsp: ', jsonRsp);
 
 			if (jsonRsp.access_token) {
-				console.log(
-					'Setting IGDB_TOKEN and IGDB_TOKEN_REFRESHED_DATE',
-					jsonRsp
-				);
+				console.log('Setting IGDB_TOKEN and IGDB_TOKEN_REFRESHED_DATE');
 				await setTokenValue('IGDB_TOKEN', jsonRsp.access_token);
 				await setTokenValue('IGDB_TOKEN_REFRESHED_DATE', todayStr);
 			}
