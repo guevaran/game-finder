@@ -117,7 +117,7 @@ interface Filter {
 		abbreviation: string;
 	}[];
 	genres: { name: string; id: number }[];
-	gameModes: { name: string; id: number }[];
+	gameModes: { name: string; id: number; label: string }[];
 	rangeDate: [number, number];
 }
 const filter: Filter = reactive({
@@ -172,19 +172,21 @@ onMounted(() => {
 	);
 });
 
-// Get platforms data
-// TODO: Error handling
-const { data: platforms, error: errPlatforms } = useIgdbData('/platforms', {
-	method: 'POST',
-	body: 'fields name,alternative_name,abbreviation; limit 500; sort name asc;',
-} as any);
+// Get platforms data via $igdb
+const { data: platforms, error: errPlatforms } = useLazyAsyncData<any[]>('platforms', () =>
+	$igdb('/platforms', {
+		method: 'POST',
+		body: 'fields name,alternative_name,abbreviation; limit 500; sort name asc;',
+	})
+);
 
-// Get genres data
-// TODO: Error handling
-const { data: genres, error: errGenres } = useIgdbData('/genres', {
-	method: 'POST',
-	body: 'fields name; limit 500; sort name asc;',
-} as any);
+// Get genres data via $igdb
+const { data: genres, error: errGenres } = useLazyAsyncData<any[]>('genres', () =>
+	$igdb('/genres', {
+		method: 'POST',
+		body: 'fields name; limit 500; sort name asc;',
+	})
+);
 
 // Get gameModes data (static to avoid another API request)
 const gameModes = ref([
@@ -221,21 +223,14 @@ const formatDateRange = () => {
 // MEMORY LEAK FIX: Use shallowRef for computed properties to reduce reactive overhead
 // Transform platforms data to include a label property
 const platformItems = computed(() => {
-	if (!platforms.value) return [];
-	// Create a shallow copy to avoid deep reactivity on mapped items
-	return platforms.value.map((platform: any) => ({
-		...platform,
-		label: platform.name,
-	}));
+	const list = Array.isArray(platforms.value) ? platforms.value : [];
+	return list.map((platform: any) => ({ ...platform, label: platform.name }));
 });
 
 // Transform genres data to include a label property
 const genreItems = computed(() => {
-	if (!genres.value) return [];
-	return genres.value.map((genre: any) => ({
-		...genre,
-		label: genre.name,
-	}));
+	const list = Array.isArray(genres.value) ? genres.value : [];
+	return list.map((genre: any) => ({ ...genre, label: genre.name }));
 });
 
 // Update game modes to include a label property
@@ -446,11 +441,7 @@ onBeforeUnmount(() => {
 							:search-attributes="['label', 'alternative_name', 'abbreviation']"
 							searchable-placeholder="Search a platform..."
 							placeholder="Select platforms"
-						>
-							<template #option="{ item: platform }">
-								{{ platform.label }}
-							</template>
-						</USelectMenu>
+						/>
 					</div>
 					<!-- Filter Genres -->
 					<div class="p-4 flex flex-col">
@@ -463,11 +454,7 @@ onBeforeUnmount(() => {
 							:search-attributes="['label']"
 							searchable-placeholder="Search a genre..."
 							placeholder="Select genres"
-						>
-							<template #option="{ item: genre }">
-								{{ genre.label }}
-							</template>
-						</USelectMenu>
+						/>
 					</div>
 					<!-- Filter Game modes -->
 					<div class="p-4 flex flex-col">
@@ -480,11 +467,7 @@ onBeforeUnmount(() => {
 							:search-attributes="['label']"
 							searchable-placeholder="Search a game mode..."
 							placeholder="Select game modes"
-						>
-							<template #option="{ item: gm }">
-								{{ gm.label }}
-							</template>
-						</USelectMenu>
+						/>
 					</div>
 					<!-- Filter First release date -->
 					<div class="p-4 flex flex-col">
