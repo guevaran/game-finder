@@ -3,30 +3,18 @@ import { getTokenValue } from '../utils/tokenStore';
 
 export default defineNitroPlugin((nitroApp) => {
 	// Generic request hook: runs before any API request on the server
-	nitroApp.hooks.hook('api-party:request', async (ctx: any) => {
+	nitroApp.hooks.hook('api-party:request', async (ctx: any, event: any) => {
 		// Diagnostics: show endpoint and target once per request
 		const method = ctx?.options?.method || 'GET';
-		const url = ctx?.url || ctx?.options?.url || '';
-		const baseURL = ctx?.options?.baseURL || ctx?.options?.baseUrl || '';
-		console.log('--- Request hook ---', method, baseURL + url);
+		const baseURL = ctx?.options?.baseURL || '';
+		const request = ctx?.request || '';
 
-		// 1) Guard against recursive baseURL pointing to our own api-party endpoint
-		// If baseURL is relative (starts with /) or points to our server /api/_party, force it to external IGDB API
-		const configuredBase = process.env.IGDB_API_BASE_URL || '';
-		const isAbsolute = /^https?:\/\//i.test(baseURL || configuredBase);
-		const looksInternalApiParty = (s: string) => /\/api\/_party\//i.test(s);
+		console.log('--- api-party:request - EVENT:', JSON.stringify(event));
+		console.log('--- api-party:request - CTX:', JSON.stringify(ctx));
+		console.log('--- api-party:request -', method, baseURL + request);
 
-		if (!isAbsolute || looksInternalApiParty(baseURL)) {
-			if (!/^https?:\/\//i.test(configuredBase)) {
-				console.error(
-					'api-party: IGDB_API_BASE_URL is misconfigured. Expected absolute http(s) URL, got:',
-					configuredBase
-				);
-			} else {
-				// Rewrite baseURL to external IGDB API to avoid self-recursion
-				ctx.options.baseURL = configuredBase;
-				console.warn('api-party: Rewrote baseURL to', configuredBase);
-			}
+		if (!baseURL && !request) {
+			return;
 		}
 
 		const token = await getTokenValue('IGDB_TOKEN');
