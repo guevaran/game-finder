@@ -173,19 +173,25 @@ onMounted(() => {
 });
 
 // Get platforms data via $igdb
-const { data: platforms, error: errPlatforms } = useLazyAsyncData<any[]>('platforms', () =>
-	$igdb('/platforms', {
-		method: 'POST',
-		body: 'fields name,alternative_name,abbreviation; limit 500; sort name asc;',
-	})
+const { data: platforms, error: errPlatforms } = useLazyAsyncData<any[]>(
+	'platforms',
+	() =>
+		$igdb('/platforms', {
+			method: 'POST',
+			body: 'fields name,alternative_name,abbreviation; limit 500; sort name asc;',
+		}),
+	{ server: false }
 );
 
 // Get genres data via $igdb
-const { data: genres, error: errGenres } = useLazyAsyncData<any[]>('genres', () =>
-	$igdb('/genres', {
-		method: 'POST',
-		body: 'fields name; limit 500; sort name asc;',
-	})
+const { data: genres, error: errGenres } = useLazyAsyncData<any[]>(
+	'genres',
+	() =>
+		$igdb('/genres', {
+			method: 'POST',
+			body: 'fields name; limit 500; sort name asc;',
+		}),
+	{ server: false }
 );
 
 // Get gameModes data (static to avoid another API request)

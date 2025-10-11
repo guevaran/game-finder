@@ -2,22 +2,39 @@ import { getEnvValue } from '../utils/envUtils';
 import { getTokenValue } from '../utils/tokenStore';
 
 export default defineNitroPlugin((nitroApp) => {
-	// Generic request hook: runs before any API request on the server
-	nitroApp.hooks.hook('api-party:request', async (ctx: any, event: any) => {
-		// Diagnostics: show endpoint and target once per request
+	// Runs before any api-party request
+	nitroApp.hooks.hook('api-party:request', async (ctx: any) => {
 		const method = ctx?.options?.method || 'GET';
 		const baseURL = ctx?.options?.baseURL || '';
 		const request = ctx?.request || '';
 
-		console.log('--- api-party:request - EVENT:', JSON.stringify(event));
-		console.log('--- api-party:request - CTX:', JSON.stringify(ctx));
-		console.log('--- api-party:request -', method, baseURL + request);
+		// Light diagnostic
+		console.log('--- api-party:request ->', method, `${baseURL || ''}${request || ''}`);
 
-		if (!baseURL && !request) {
-			return;
+		// If baseURL is missing/relative, force it from env to avoid local recursion
+		if (!baseURL || baseURL.startsWith('/')) {
+			const configuredBase = process.env.IGDB_API_BASE_URL || getEnvValue('IGDB_API_BASE_URL');
+			if (configuredBase && /^https?:\/\//i.test(configuredBase)) {
+				ctx.options.baseURL = configuredBase;
+			} else {
+				console.error('api-party: Missing or invalid IGDB_API_BASE_URL.');
+			}
 		}
 
+		// Attach headers safely (plain object)
 		const token = await getTokenValue('IGDB_TOKEN');
+
 		ctx.options.headers.set('Authorization', `Bearer ${token}`);
+
+		// NOT WORKING
+		// ctx.options.headers = {
+		// 	...(ctx.options.headers || {}),
+		// 	...(token ? { Authorization: `Bearer ${token}` } : {}),
+		// };
+
+		// Prevent ofetch retry storms if IGDB is unreachable
+		if (ctx.options.retry === undefined) {
+			ctx.options.retry = 0;
+		}
 	});
 });
