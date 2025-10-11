@@ -1,4 +1,5 @@
 import { getEnvValue } from '../utils/envUtils';
+import { getTokenValue } from '../utils/tokenStore';
 
 export default defineNitroPlugin((nitroApp) => {
 	// Generic request hook: runs before any API request on the server
@@ -28,12 +29,7 @@ export default defineNitroPlugin((nitroApp) => {
 			}
 		}
 
-		// 2) Attach bearer token safely (headers may be a plain object)
-		const token = getEnvValue('IGDB_TOKEN');
-		// ctx.options.headers = {
-		// 	...(ctx.options.headers || {}),
-		// 	Authorization: `Bearer ${token}`,
-		// };
+		const token = await getTokenValue('IGDB_TOKEN');
 		ctx.options.headers.set('Authorization', `Bearer ${token}`);
 	});
 });

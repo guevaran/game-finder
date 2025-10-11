@@ -1,5 +1,6 @@
 import { useScheduler } from '#scheduler';
-import { getEnvValue, setEnvValue } from '../utils/envUtils';
+import { getEnvValue } from '../utils/envUtils';
+import { getTokenValue, setTokenValue } from '../utils/tokenStore';
 
 export default defineNitroPlugin(() => {
 	startScheduler();
@@ -33,7 +34,9 @@ async function refreshToken() {
 
 	if (twitchAuthUrl) {
 		const todayStr = new Date().toISOString().split('T')[0];
-		var lastRefreshedDate = getEnvValue('IGDB_TOKEN_REFRESHED_DATE');
+		var lastRefreshedDate = await getTokenValue(
+			'IGDB_TOKEN_REFRESHED_DATE'
+		);
 		console.log('lastRefreshedDate: ', lastRefreshedDate);
 
 		// if token not already refreshed today
@@ -63,8 +66,8 @@ async function refreshToken() {
 					'Setting IGDB_TOKEN and IGDB_TOKEN_REFRESHED_DATE',
 					jsonRsp
 				);
-				setEnvValue('IGDB_TOKEN', jsonRsp.access_token);
-				setEnvValue('IGDB_TOKEN_REFRESHED_DATE', todayStr);
+				await setTokenValue('IGDB_TOKEN', jsonRsp.access_token);
+				await setTokenValue('IGDB_TOKEN_REFRESHED_DATE', todayStr);
 			}
 		}
 	}

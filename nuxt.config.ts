@@ -63,4 +63,14 @@ export default defineNuxtConfig({
 			},
 		},
 	},
+
+	// Nitro storage: mount a filesystem driver for IGDB tokens
+	nitro: {
+		storage: {
+			igdb: {
+				driver: 'fs',
+				base: './.data/igdb',
+			},
+		},
+	},
 });
