@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 	// devtools: { enabled: true },
+	// debug: true,
 	app: {
 		head: {
 			title: 'Game Finder',
@@ -11,13 +12,11 @@ export default defineNuxtConfig({
 				},
 				{
 					name: 'description',
-					content:
-						'What to play? With Game Finder, discover your next video game to play!',
+					content: 'What to play? With Game Finder, discover your next video game to play!',
 				},
 				{
 					name: 'og:description',
-					content:
-						'What to play? With Game Finder, discover your next video game to play!',
+					content: 'What to play? With Game Finder, discover your next video game to play!',
 				},
 			],
 			htmlAttrs: {

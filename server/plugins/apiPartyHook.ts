@@ -13,9 +13,6 @@ export default defineNitroPlugin((nitroApp) => {
 
 		// If baseURL is missing/relative, force it from env to avoid local recursion
 		if (!baseURL || baseURL.startsWith('/')) {
-			console.log('process.env.IGDB_API_BASE_URL', process.env.IGDB_API_BASE_URL);
-			console.log('getEnvValue(IGDB_API_BASE_URL)', getEnvValue('IGDB_API_BASE_URL'));
-
 			const configuredBase = process.env.IGDB_API_BASE_URL || getEnvValue('IGDB_API_BASE_URL');
 			if (configuredBase && /^https?:\/\//i.test(configuredBase)) {
 				ctx.options.baseURL = configuredBase;
@@ -24,16 +21,22 @@ export default defineNitroPlugin((nitroApp) => {
 			}
 		}
 
-		// Attach headers safely (plain object)
+		// Attach headers safely (supports Headers or plain object)
+		const ensureHeader = (key: string, value?: string) => {
+			if (!value) return;
+			const current = ctx.options.headers;
+			if (current && typeof (current as any).set === 'function') {
+				// Headers-like
+				(current as any).set(key, value);
+			} else {
+				ctx.options.headers = { ...(current || {}), [key]: value };
+			}
+		};
+
 		const token = await getTokenValue('IGDB_TOKEN');
-
-		ctx.options.headers.set('Authorization', `Bearer ${token}`);
-
-		// NOT WORKING
-		// ctx.options.headers = {
-		// 	...(ctx.options.headers || {}),
-		// 	...(token ? { Authorization: `Bearer ${token}` } : {}),
-		// };
+		const clientId = process.env.IGDB_CLIENT_ID || getEnvValue('IGDB_CLIENT_ID') || undefined;
+		ensureHeader('Authorization', token ? `Bearer ${token}` : undefined);
+		ensureHeader('Client-ID', clientId);
 
 		// Prevent ofetch retry storms if IGDB is unreachable
 		if (ctx.options.retry === undefined) {
