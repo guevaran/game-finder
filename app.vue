@@ -472,7 +472,11 @@ watch(
 							:search-attributes="['label', 'alternative_name', 'abbreviation']"
 							searchable-placeholder="Search a platform..."
 							placeholder="Select platforms"
-						/>
+						>
+							<template #option="{ item: platform }">
+								{{ platform.label }}
+							</template>
+						</USelectMenu>
 					</div>
 					<!-- Filter Genres -->
 					<div class="p-4 flex flex-col">
@@ -485,7 +489,11 @@ watch(
 							:search-attributes="['label']"
 							searchable-placeholder="Search a genre..."
 							placeholder="Select genres"
-						/>
+						>
+							<template #option="{ item: genre }">
+								{{ genre.label }}
+							</template>
+						</USelectMenu>
 					</div>
 					<!-- Filter Game modes -->
 					<div class="p-4 flex flex-col">
@@ -498,7 +506,11 @@ watch(
 							:search-attributes="['label']"
 							searchable-placeholder="Search a game mode..."
 							placeholder="Select game modes"
-						/>
+						>
+							<template #option="{ item: gameMode }">
+								{{ gameMode.label }}
+							</template>
+						</USelectMenu>
 					</div>
 					<!-- Filter First release date -->
 					<div class="p-4 flex flex-col">
