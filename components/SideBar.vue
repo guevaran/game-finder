@@ -21,15 +21,16 @@ watch(
 	}
 );
 
-function handleFocusout(event: any) {
-	// To avoid closing sidebar when clicking on an element inside the sidebar
-	if (!event.currentTarget.contains(event.relatedTarget)) {
-		// Auto close on focusout only on small screens
-		if (props.windowWidth < 1024) {
-			// console.log("emit close sidebar")
-			emit('close');
-		}
-	}
+function handleFocusout(event: FocusEvent) {
+	// // Only close when focus moves outside the sidebar container
+	// const container = sideBar.value;
+	// if (!container) return;
+	// // The newly focused element after focusout
+	// const nextTarget = (event.relatedTarget as Node | null) ?? (document.activeElement as Node | null);
+	// const staysInside = nextTarget ? container.contains(nextTarget) : false;
+	// if (!staysInside && props.windowWidth < 1024) {
+	// 	emit('close');
+	// }
 }
 
 onMounted(() => {
@@ -46,22 +47,11 @@ onMounted(() => {
 			ref="sideBar"
 			@focusout="handleFocusout"
 		>
-			<div
-				class="flex flex-col items-stretch overflow-y-auto overflow-x-clip h-full"
-			>
+			<div class="flex flex-col items-stretch overflow-y-auto overflow-x-clip h-full">
 				<slot></slot>
 			</div>
-			<button
-				v-if="true"
-				type="button"
-				class="p-4 absolute -top-px -left-[64px] z-20 border-l border-t border-b border-text border-opacity-50 bg-background"
-				@click="$emit('close')"
-			>
-				<Icon
-					class="text-text hover:text-primary"
-					size="2em"
-					name="akar-icons:cross"
-				/>
+			<button v-if="true" type="button" class="p-4 absolute -top-px -left-[64px] z-20 border-l border-t border-b border-text border-opacity-50 bg-background" @click="$emit('close')">
+				<Icon class="text-text hover:text-primary" size="2em" name="akar-icons:cross" />
 			</button>
 		</div>
 	</Transition>
