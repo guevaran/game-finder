@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const windowWidth = ref(0);
 const showSideBar = ref(false);
+// Controls the visibility of the game hover box on mobile
+const showOverlay = ref(false);
 
 // ----- GAME -----
 
@@ -100,8 +102,11 @@ function nextGame() {
 			refresh();
 			gameIndex.value = 0;
 			filterJustChanged.value = false;
+			// Reset overlay when cycling games
+			showOverlay.value = false;
 		} else {
 			gameIndex.value++;
+			showOverlay.value = false;
 		}
 	}
 }
@@ -272,6 +277,14 @@ function onImgError(event: Event) {
 	}
 }
 
+function onOverlayClick() {
+	let isMobile = windowWidth.value < 1024;
+
+	if (isMobile) {
+		showOverlay.value = !showOverlay.value;
+	}
+}
+
 // ----- UTILS -----
 
 // convert year to unix timestamp (i=0 -> startDate, i=1 -> endDate)
@@ -322,6 +335,14 @@ onBeforeUnmount(() => {
 		filterChangeTimeout = null;
 	}
 });
+
+// Hide overlay when the current game changes
+watch(
+	() => game.value?.id,
+	() => {
+		showOverlay.value = false;
+	}
+);
 </script>
 
 <template>
@@ -361,11 +382,13 @@ onBeforeUnmount(() => {
 							/>
 
 							<!--IMAGE HOVER BOX-->
-							<NuxtLink
-								:to="game?.url || '#'"
-								target="_blank"
+							<div
 								v-if="!pending && game"
 								class="absolute w-full h-full p-1 bg-background bg-opacity-70 top-0 opacity-0 border-2 border-primary group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center gap-3 text-center"
+								:class="{ 'opacity-100': showOverlay && windowWidth < 1024 }"
+								@click="onOverlayClick"
+								role="region"
+								aria-label="Game details overlay"
 							>
 								<span class="text-2xl mb-2">{{ game.name }}</span>
 								<span class="text-xl mb-2"><span class="underline">First release:</span>{{ ' ' + utsToStr(game.first_release_date) }}</span>
@@ -390,8 +413,10 @@ onBeforeUnmount(() => {
 										{{ gm.name }}
 									</div>
 								</div>
-								<span class="text-primary font-bold my-2">Click to get more info!</span>
-							</NuxtLink>
+								<NuxtLink v-if="game?.url" :to="game.url" target="_blank" @click.stop class="text-primary font-bold my-2 underline underline-offset-4">
+									Click here to get more info!
+								</NuxtLink>
+							</div>
 
 							<!--NO GAME FOUND-->
 							<div v-if="!pending && !error && !game" class="absolute h-full w-full p-12 text-text border-2 border-dashed border-text flex justify-center items-center">
