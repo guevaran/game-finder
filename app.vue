@@ -463,7 +463,12 @@ watch(
 					</div>
 					<!-- Filter Platforms -->
 					<div class="p-4 flex flex-col">
-						<span class="mb-2">Platforms:</span>
+						<div class="flex justify-between items-center mb-2">
+							<span>Platforms:</span>
+							<button v-if="filter.platforms.length > 0" type="button" class="hover:text-primary transition-colors" @click="filter.platforms = []" aria-label="Clear platforms filter">
+								<Icon size="1.5em" name="akar-icons:cross" />
+							</button>
+						</div>
 						<USelectMenu
 							v-model="filter.platforms"
 							:items="platformItems"
@@ -480,7 +485,12 @@ watch(
 					</div>
 					<!-- Filter Genres -->
 					<div class="p-4 flex flex-col">
-						<span class="mb-2">Genres:</span>
+						<div class="flex justify-between items-center mb-2">
+							<span>Genres:</span>
+							<button v-if="filter.genres.length > 0" type="button" class="hover:text-primary transition-colors" @click="filter.genres = []" aria-label="Clear genres filter">
+								<Icon size="1.5em" name="akar-icons:cross" />
+							</button>
+						</div>
 						<USelectMenu
 							v-model="filter.genres"
 							:items="genreItems"
