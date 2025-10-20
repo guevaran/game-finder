@@ -507,7 +507,12 @@ watch(
 					</div>
 					<!-- Filter Game modes -->
 					<div class="p-4 flex flex-col">
-						<span class="mb-2">Game modes:</span>
+						<div class="flex justify-between items-center mb-2">
+							<span>Game modes:</span>
+							<button v-if="filter.gameModes.length > 0" type="button" class="hover:text-primary transition-colors" @click="filter.gameModes = []" aria-label="Clear game modes filter">
+								<Icon size="1.5em" name="akar-icons:cross" />
+							</button>
+						</div>
 						<USelectMenu
 							v-model="filter.gameModes"
 							:items="gameModeItems"
